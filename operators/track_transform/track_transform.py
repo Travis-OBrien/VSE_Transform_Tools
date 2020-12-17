@@ -130,22 +130,22 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
                         break
 
         if scene.vse_transform_tools_use_rotation and ref_track:
-            offset_angle = 0.0
+            #offset_angle = 0.0
             for marker in ref_track.markers:
-                if marker.frame == start_frame:
+                #if marker.frame == start_frame:
 
-                    p1 = None
-                    for pos_marker in pos_track.markers:
-                        if pos_marker.frame == marker.frame:
-                            p1 = (pos_marker.co.x * res_x, pos_marker.co.y * res_y)
-                            break
+                p1 = None
+                for pos_marker in pos_track.markers:
+                    if pos_marker.frame == marker.frame:
+                        p1 = (pos_marker.co.x * res_x, pos_marker.co.y * res_y)
+                        break
 
-                    if not p1:
-                        return {"FINISHED"}
+                if not p1:
+                    return {"FINISHED"}
 
-                    p2 = (marker.co.x * res_x, marker.co.y * res_y)
-                    offset_angle = calculate_angle(p1, p2)
-                    break
+                p2 = (marker.co.x * res_x, marker.co.y * res_y)
+                offset_angle = calculate_angle(p1, p2)
+                break
             
             
             active_frame_start = active.frame_start
@@ -169,21 +169,22 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
                 active_frame_start += 1
 
         if scene.vse_transform_tools_use_scale and ref_track:
-            init_distance = 1.0
+            #init_distance = 1.0
             for marker in ref_track.markers:
-                if marker.frame == start_frame:
+                #if marker.frame == start_frame:
+                #if marker.frame == get_sequence_start_frame(active):
 
-                    p1 = None
-                    for pos_marker in pos_track.markers:
-                        if pos_marker.frame == marker.frame:
-                            p1 = (pos_marker.co.x * res_x, pos_marker.co.y * res_y)
-                            break
+                p1 = None
+                for pos_marker in pos_track.markers:
+                    if pos_marker.frame == marker.frame:
+                        p1 = (pos_marker.co.x * res_x, pos_marker.co.y * res_y)
+                        break
 
-                    if not p1:
-                        return {"FINISHED"}
+                if not p1:
+                    return {"FINISHED"}
 
-                    p2 = (marker.co.x * res_x, marker.co.y * res_y)
-                    init_distance = distance_formula(p1, p2)
+                p2 = (marker.co.x * res_x, marker.co.y * res_y)
+                init_distance = distance_formula(p1, p2)
 
 
             active_frame_start = active.frame_start
@@ -200,6 +201,8 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
                 p2 = (marker.co.x * res_x, marker.co.y * res_y)
                 distance = distance_formula(p1, p2)
                 scl = (distance / init_distance) * 2.0
+                #transform = transform_strip.transform
+                #transform.scale_x = scl
                 transform_strip.scale_start_x = scl
                 transform_strip.keyframe_insert(
                     data_path="scale_start_x", frame=scene.frame_current)
