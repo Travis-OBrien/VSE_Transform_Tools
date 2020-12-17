@@ -17,3 +17,4 @@ from .pixelate import PREV_OT_pixelate
 from .mouse_track import PREV_OT_mouse_track
 from .crop import PREV_OT_crop
 from .track_transform import SEQUENCER_OT_track_transform
+from .track_transform import SEQUENCER_OT_strip_to_movieclip_timeline

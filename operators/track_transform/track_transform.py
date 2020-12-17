@@ -263,3 +263,22 @@ def distance_formula(p1, p2):
 
     distance = math.sqrt(x**2 + y**2)
     return distance
+
+
+class SEQUENCER_OT_strip_to_movieclip_timeline(bpy.types.Operator):
+    """
+    """
+    bl_idname = "vse_transform_tools.strip_to_movieclip_timeline"
+    bl_label = "Align Timeline"
+    bl_description = "Align timeline from active sequence (edited) to movieclip (unedited)"
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        scene = context.scene
+        return scene.sequence_editor and scene.sequence_editor.active_strip
+    
+    def execute(self, context):
+        scene = context.scene
+        scene.frame_current = scene.frame_current - scene.sequence_editor.active_strip.frame_start
+        return {'FINISHED'}

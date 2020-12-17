@@ -362,6 +362,7 @@ class SEQUENCER_PT_track_transform_ui(bpy.types.Panel):
 
         row = box.row()
         row.operator("vse_transform_tools.track_transform")
+        row.operator("vse_transform_tools.strip_to_movieclip_timeline")
 
 
 def get_tracker_list(self, context):
@@ -449,6 +450,7 @@ classes = [
     PREV_OT_crop,
     SEQUENCER_MT_transform_tools_menu,
     SEQUENCER_OT_track_transform,
+    SEQUENCER_OT_strip_to_movieclip_timeline,
     SEQUENCER_PT_track_transform_ui
 ]
 
