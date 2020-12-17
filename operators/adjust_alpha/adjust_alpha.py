@@ -19,6 +19,7 @@ class PREV_OT_adjust_alpha(bpy.types.Operator):
     first_mouse = Vector((0, 0))
     pos = Vector((0, 0))
     alpha_init = 0
+    blendmode_init = ''
     fac = 0
     key_val = ''
 
@@ -69,6 +70,7 @@ class PREV_OT_adjust_alpha(bpy.types.Operator):
         self.fac = round(self.fac, precision)
         for strip in self.tab:
             strip.blend_alpha = self.fac
+            strip.blend_type = 'ALPHA_OVER'
 
         if (event.type == 'LEFTMOUSE' or
            event.type == 'RET' or
@@ -97,6 +99,7 @@ class PREV_OT_adjust_alpha(bpy.types.Operator):
         if event.alt:
             for strip in context.selected_sequences:
                 strip.blend_alpha = 1.0
+                strip.blend_type = 'CROSS'
             return {'FINISHED'}
 
         else:
