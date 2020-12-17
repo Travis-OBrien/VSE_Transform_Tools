@@ -75,29 +75,33 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
             offset_y = pos_track.markers[0].co.y * res_y
 
         
+        # WHY PRE TRANSFORM ???
+#        if active.translation_unit == "PERCENT":
+#            active.translate_start_x = (active.translate_start_x - ((offset_x / res_x) * 100) + 50) / 2
+#            active.translate_start_y = (active.translate_start_y - ((offset_y / res_y) * 100) + 50) / 2
 
-        if active.translation_unit == "PERCENT":
-            active.translate_start_x = (active.translate_start_x - ((offset_x / res_x) * 100) + 50) / 2
-            active.translate_start_y = (active.translate_start_y - ((offset_y / res_y) * 100) + 50) / 2
+#        else:
+#            active.translate_start_x = ((active.translate_start_x + (res_x / 2)) - offset_x) / 2
+#            active.translate_start_y = ((active.translate_start_y + (res_y / 2)) - offset_y) / 2
 
-        else:
-            active.translate_start_x = ((active.translate_start_x + (res_x / 2)) - offset_x) / 2
-            active.translate_start_y = ((active.translate_start_y + (res_y / 2)) - offset_y) / 2
+#        active.scale_start_x = active.scale_start_x / 2
+#        active.scale_start_y = active.scale_start_y / 2
+ 
+#        for strip in context.selected_sequences:
+#            if not strip == active:
+#                strip.select = False
 
-        active.scale_start_x = active.scale_start_x / 2
-        active.scale_start_y = active.scale_start_y / 2
-
-        for strip in context.selected_sequences:
-            if not strip == active:
-                strip.select = False
-
-        bpy.ops.sequencer.effect_strip_add(type="TRANSFORM")
-
+        
         transform_strip = context.scene.sequence_editor.active_strip
-        transform_strip.name = "[TRACKED]-%s" % strip.name
-        transform_strip.blend_type = 'ALPHA_OVER'
-        transform_strip.use_uniform_scale = True
-        transform_strip.scale_start_x = 2.0
+        # WHY ADD ANOTHER TRANSFORM ???
+        #   WITH YET ANOTHER PRE TRANSFORM ???
+#        bpy.ops.sequencer.effect_strip_add(type="TRANSFORM")
+
+#        transform_strip = context.scene.sequence_editor.active_strip
+#        transform_strip.name = "[TRACKED]-%s" % strip.name
+#        transform_strip.blend_type = 'ALPHA_OVER'
+#        transform_strip.use_uniform_scale = True
+#        transform_strip.scale_start_x = 2.0
 
         tree = get_input_tree(transform_strip)[1::]
         for child in tree:
