@@ -29,17 +29,17 @@ def get_strip_box(strip):
     proxy_key = bpy.context.space_data.proxy_render_size
     proxy_fac = proxy_facs[proxy_key]
 
-    if not strip.use_translation and not strip.use_crop:
+    if False:#not strip.use_translation and not strip.use_crop:
         left = 0
         right = res_x
         bottom = 0
         top = res_y
 
-    elif strip.use_crop and not strip.use_translation:
-        left = 0
-        right = res_x
-        bottom = 0
-        top = res_y
+    # elif strip.use_crop and not strip.use_translation:
+    #     left = 0
+    #     right = res_x
+    #     bottom = 0
+    #     top = res_y
 
     elif not hasattr(strip, 'elements'):
         len_crop_x = res_x
@@ -49,31 +49,31 @@ def get_strip_box(strip):
             factor = strip.scene.render.resolution_percentage / 100
             len_crop_x = strip.scene.render.resolution_x * factor
             len_crop_y = strip.scene.render.resolution_y * factor
-        if strip.use_crop:
-            len_crop_x -= (strip.crop.min_x + strip.crop.max_x)
-            len_crop_y -= (strip.crop.min_y + strip.crop.max_y)
+        # if strip.use_crop:
+        #     len_crop_x -= (strip.crop.min_x + strip.crop.max_x)
+        #     len_crop_y -= (strip.crop.min_y + strip.crop.max_y)
 
-            if len_crop_x < 0:
-                len_crop_x = 0
-            if len_crop_y < 0:
-                len_crop_y = 0
+        #     if len_crop_x < 0:
+        #         len_crop_x = 0
+        #     if len_crop_y < 0:
+        #         len_crop_y = 0
 
-        left = 0
-        right = res_x
-        bottom = 0
-        top = res_y
+        #left = 0
+        #right = res_x
+        #bottom = 0
+        #top = res_y
 
-        if strip.use_translation:
-            left = strip.transform.offset_x
-            right = left + len_crop_x
-            bottom = strip.transform.offset_y
-            top = strip.transform.offset_y + len_crop_y
-
-    elif strip.use_translation and not strip.use_crop:
+        #if strip.use_translation:
         left = strip.transform.offset_x
-        right = left + (strip.elements[0].orig_width / proxy_fac)
+        right = left + len_crop_x
         bottom = strip.transform.offset_y
-        top = bottom + (strip.elements[0].orig_height / proxy_fac)
+        top = strip.transform.offset_y + len_crop_y
+
+    # elif strip.use_translation and not strip.use_crop:
+    #     left = strip.transform.offset_x
+    #     right = left + (strip.elements[0].orig_width / proxy_fac)
+    #     bottom = strip.transform.offset_y
+    #     top = bottom + (strip.elements[0].orig_height / proxy_fac)
 
     else:
         total_crop_x = strip.crop.min_x + strip.crop.max_x
@@ -88,5 +88,6 @@ def get_strip_box(strip):
         top = bottom + len_crop_y
 
     box = [left, right, bottom, top]
+    print(left, " ",right, " ",bottom, " ",top)
 
     return box

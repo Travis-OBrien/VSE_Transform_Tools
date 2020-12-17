@@ -223,12 +223,15 @@ class PREV_OT_grab(bpy.types.Operator):
                 pos_x = init_pos[0] + self.vec_act.x + trans_offset_x
                 pos_y = init_pos[1] + self.vec_act.y + trans_offset_y
 
-                if strip.type == "TRANSFORM":
-                    strip.translate_start_x = set_pos_x(strip, pos_x)
-                    strip.translate_start_y = set_pos_y(strip, pos_y)
-                else:
-                    strip.transform.offset_x = pos_x
-                    strip.transform.offset_y = pos_y
+                # if strip.type == "TRANSFORM":
+                #     strip.translate_start_x = set_pos_x(strip, pos_x)
+                #     strip.translate_start_y = set_pos_y(strip, pos_y)
+                # else:
+                #     strip.transform.offset_x = pos_x
+                #     strip.transform.offset_y = pos_y
+
+            strip.transform.offset_x = pos_x
+            strip.transform.offset_y = pos_y
 
             if (event.type == 'LEFTMOUSE' or
                event.type == 'RET' or
@@ -243,14 +246,16 @@ class PREV_OT_grab(bpy.types.Operator):
 
                 if scene.tool_settings.use_keyframe_insert_auto:
                     for strip in self.tab:
-                        if strip.type == "TRANSFORM":
-                            strip.keyframe_insert(data_path='translate_start_x')
-                            strip.keyframe_insert(data_path='translate_start_y')
-                        else:
-                            strip.transform.keyframe_insert(data_path='offset_x')
-                            strip.transform.keyframe_insert(data_path='offset_y')
+                        # if strip.type == "TRANSFORM":
+                        #     strip.keyframe_insert(data_path='translate_start_x')
+                        #     strip.keyframe_insert(data_path='translate_start_y')
+                        # else:
+                        #     strip.transform.keyframe_insert(data_path='offset_x')
+                        #     strip.transform.keyframe_insert(data_path='offset_y')
+                        strip.transform.keyframe_insert(data_path='offset_x')
+                        strip.transform.keyframe_insert(data_path='offset_y')
 
-                context.area.header_text_set('')
+                context.area.header_text_set(None)
                 return {'FINISHED'}
 
             if event.type == 'ESC' or event.type == 'RIGHTMOUSE':
@@ -262,15 +267,17 @@ class PREV_OT_grab(bpy.types.Operator):
                     bpy.types.SpaceSequenceEditor.draw_handler_remove(self.handle_snap, 'PREVIEW')
 
                 for strip, init_pos in zip(self.tab, self.tab_init):
-                    if strip.type == "TRANSFORM":
-                        strip.translate_start_x = set_pos_x(strip, init_pos[0])
-                        strip.translate_start_y = set_pos_y(strip, init_pos[1])
-                    else:
-                        strip.transform.offset_x = init_pos[0]
-                        strip.transform.offset_y = init_pos[1]
+                    # if strip.type == "TRANSFORM":
+                    #     strip.translate_start_x = set_pos_x(strip, init_pos[0])
+                    #     strip.translate_start_y = set_pos_y(strip, init_pos[1])
+                    # else:
+                    #     strip.transform.offset_x = init_pos[0]
+                    #     strip.transform.offset_y = init_pos[1]
+                    strip.transform.offset_x = init_pos[0]
+                    strip.transform.offset_y = init_pos[1]
 
 
-                context.area.header_text_set('')
+                context.area.header_text_set(None)
                 return {'FINISHED'}
 
             return {'RUNNING_MODAL'}
@@ -286,16 +293,20 @@ class PREV_OT_grab(bpy.types.Operator):
         if event.alt:
             selected = bpy.context.selected_sequences
             for strip in selected:
-                transform = get_highest_transform(strip)
-                if transform.type == 'TRANSFORM':
-                    strip.translate_start_x = 0
-                    strip.translate_start_y = 0
-                elif transform.use_translation:
-                    box = get_strip_box(transform)
-                    width = box[1] - box[0]
-                    height = box[3] - box[2]
-                    transform.transform.offset_x = (res_x / 2) - (width / 2)
-                    transform.transform.offset_y = (res_y / 2) - (height / 2)
+                transform = strip#get_highest_transform(strip)
+                # if transform.type == 'TRANSFORM':
+                #     strip.translate_start_x = 0
+                #     strip.translate_start_y = 0
+                #     strip.keyframe_insert(data_path='translate_start_x')
+                #     strip.keyframe_insert(data_path='translate_start_y')
+                #elif transform.use_translation:
+                box = get_strip_box(transform)
+                width = box[1] - box[0]
+                height = box[3] - box[2]
+                transform.transform.offset_x = (res_x / 2) - (width / 2)
+                transform.transform.offset_y = (res_y / 2) - (height / 2)
+                strip.transform.keyframe_insert(data_path='offset_x')
+                strip.transform.keyframe_insert(data_path='offset_y')
             return {'FINISHED'}
 
         else:
@@ -324,11 +335,12 @@ class PREV_OT_grab(bpy.types.Operator):
             image_offset_strips = []
             selected = context.selected_sequences
             for strip in selected:
-                if strip.use_translation:
+                if not strip.type == 'SOUND':
+                    #if strip.use_translation:
                     image_offset_strips.append(strip)
                     strip.select = False
 
-            self.tab = ensure_transforms()
+            #self.tab = image_offset_strips#ensure_transforms()
             self.tab.extend(image_offset_strips)
             visible_strips = get_visible_strips()
 
@@ -344,12 +356,15 @@ class PREV_OT_grab(bpy.types.Operator):
 
             for strip in self.tab:
                 strip.select = True
-                if strip.type == "TRANSFORM":
-                    pos_x = get_pos_x(strip)
-                    pos_y = get_pos_y(strip)
-                else:
-                    pos_x = strip.transform.offset_x
-                    pos_y = strip.transform.offset_y
+                # if strip.type == "TRANSFORM":
+                #     pos_x = get_pos_x(strip)
+                #     pos_y = get_pos_y(strip)
+                # else:
+                #     pos_x = strip.transform.offset_x
+                #     pos_y = strip.transform.offset_y
+
+                pos_x = strip.transform.offset_x
+                pos_y = strip.transform.offset_y
 
                 self.tab_init.append([pos_x, pos_y])
 

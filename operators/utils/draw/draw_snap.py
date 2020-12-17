@@ -6,10 +6,10 @@ from .draw_line import draw_line
 
 def draw_snap(self, loc, orientation):
     """
-    Draws the purple snap lines
+    Draws the snap lines
     """
-    color = (1.0, 0.0, 1.0, 0.5)
-    thickness = 2
+    color = (1.0, 1.0, 0.0, 0.5)
+    outline_color = (0, 0, 0, 0.2)
 
     if orientation == "VERTICAL":
         v1 = [loc, -10000]
@@ -18,5 +18,6 @@ def draw_snap(self, loc, orientation):
     elif orientation == "HORIZONTAL":
         v1 = [-10000, loc]
         v2 = [10000, loc]
-    
-    draw_line(v1, v2, thickness, color)
+
+    draw_line(v1, v2, 1.5, outline_color)   
+    draw_line(v1, v2, 0.5, color)

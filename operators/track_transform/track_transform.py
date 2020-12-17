@@ -36,6 +36,12 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
         res_x = scene.render.resolution_x
         res_y = scene.render.resolution_y
 
+        sequence_strip = None
+        for sequence in bpy.context.selected_sequences:
+            if sequence.select and not sequence == scene.sequence_editor.active_strip:
+                sequence_strip = sequence
+                break
+
         tracker_names = []
 
         for movieclip in bpy.data.movieclips:
@@ -86,9 +92,13 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
         tree = get_input_tree(transform_strip)[1::]
         for child in tree:
             child.mute = True
-
+        
+        sequence_offset = sequence_strip.frame_start + sequence_strip.frame_offset_start
+        active_offset   = active.frame_start - sequence_offset
+        final_offset    = sequence_offset + active_offset
         for marker in pos_track.markers:
-            scene.frame_current = marker.frame
+            #scene.frame_current = marker.frame
+            scene.frame_current = final_offset
             transform_strip.translate_start_x = ((((marker.co.x * res_x) - (res_x / 2)) / res_x) * 100)
             transform_strip.translate_start_y = ((((marker.co.y * res_y) - (res_y / 2)) / res_y) * 100)
 
@@ -96,6 +106,8 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
                 data_path="translate_start_x", frame=scene.frame_current)
             transform_strip.keyframe_insert(
                 data_path="translate_start_y", frame=scene.frame_current)
+            
+            final_offset += 1
 
         ref_track = None
         if scene.vse_transform_tools_use_rotation or scene.vse_transform_tools_use_scale:
@@ -106,6 +118,7 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
                         break
 
         if scene.vse_transform_tools_use_rotation and ref_track:
+            offset_angle = 0.0
             for marker in ref_track.markers:
                 if marker.frame == start_frame:
 
@@ -121,9 +134,12 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
                     p2 = (marker.co.x * res_x, marker.co.y * res_y)
                     offset_angle = calculate_angle(p1, p2)
                     break
-
+            
+            sequence_offset = sequence_strip.frame_start + sequence_strip.frame_offset_start
+            active_offset   = active.frame_start - sequence_offset
+            final_offset    = sequence_offset + active_offset
             for marker in ref_track.markers:
-                scene.frame_current = marker.frame
+                scene.frame_current = final_offset
                 p1 = None
                 for pos_marker in pos_track.markers:
                     if pos_marker.frame == marker.frame:
@@ -138,8 +154,11 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
                 transform_strip.rotation_start = angle
                 transform_strip.keyframe_insert(
                     data_path="rotation_start", frame=scene.frame_current)
+                
+                final_offset += 1
 
         if scene.vse_transform_tools_use_scale and ref_track:
+            init_distance = 1.0
             for marker in ref_track.markers:
                 if marker.frame == start_frame:
 
@@ -155,8 +174,11 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
                     p2 = (marker.co.x * res_x, marker.co.y * res_y)
                     init_distance = distance_formula(p1, p2)
 
+            sequence_offset = sequence_strip.frame_start + sequence_strip.frame_offset_start
+            active_offset   = active.frame_start - sequence_offset
+            final_offset    = sequence_offset + active_offset
             for marker in ref_track.markers:
-                scene.frame_current = marker.frame
+                scene.frame_current = final_offset
                 p1 = None
                 for pos_marker in pos_track.markers:
                     if pos_marker.frame == marker.frame:
@@ -171,6 +193,8 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
                 transform_strip.scale_start_x = scl
                 transform_strip.keyframe_insert(
                     data_path="scale_start_x", frame=scene.frame_current)
+                
+                final_offset += 1
 
         scene.frame_current = start_frame
 

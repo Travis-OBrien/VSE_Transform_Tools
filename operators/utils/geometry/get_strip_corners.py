@@ -27,20 +27,20 @@ def get_strip_corners(strip):
         height = top - bottom
 
         origin = Vector([left + (width / 2), bottom + (height / 2)])
-        if strip.input_1.use_translation:
-            off_x = strip.input_1.transform.offset_x
-            off_y = strip.input_1.transform.offset_y
-            scl_x = strip.scale_start_x
-            scl_y = strip.scale_start_y
+        #if strip.input_1.use_translation:
+        off_x = strip.input_1.transform.offset_x
+        off_y = strip.input_1.transform.offset_y
+        scl_x = strip.scale_start_x
+        scl_y = strip.scale_start_y
 
-            origin_x = (width / 2) - (off_x * scl_x) / 2
-            origin_y = (height / 2) - (off_y * scl_y) / 2
+        origin_x = (width / 2) - (off_x * scl_x) / 2
+        origin_y = (height / 2) - (off_y * scl_y) / 2
 
-            origin = Vector([left + origin_x, bottom + origin_y])
+        origin = Vector([left + origin_x, bottom + origin_y])
 
         rot = math.radians(strip.rotation_start)
-        if strip.use_translation or strip.use_crop:
-            rot = 0
+        #if strip.use_translation or strip.use_crop:
+        #rot = 0
 
         bottom_left = Vector([left, bottom])
         top_left = Vector([left, top])

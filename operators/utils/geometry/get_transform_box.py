@@ -24,11 +24,11 @@ def get_transform_box(strip):
     res_y = scene.render.resolution_y
 
     strip_in = strip.input_1
-    if strip_in.use_translation:
-        left = 0
-        right = res_x
-        bottom = 0
-        top = res_y
+    #if strip_in.use_translation:
+    #left = 0
+    #right = res_x
+    #bottom = 0
+    #top = res_y
 
     width = right - left
     height = top - bottom

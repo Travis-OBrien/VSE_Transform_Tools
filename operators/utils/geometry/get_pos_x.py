@@ -15,10 +15,12 @@ def get_pos_x(strip):
     """
     res_x = bpy.context.scene.render.resolution_x
 
-    if strip.translation_unit == 'PERCENT':
-        pos = strip.translate_start_x * res_x / 100
+    # if strip.translation_unit == 'PERCENT':
+    #     #pos = strip.translate_start_x * res_x / 100
+    #     pos = strip.transform.offset_x * res_x / 100
 
-    else:
-        pos = strip.translate_start_x
+    # else:
+    #     #pos = strip.translate_start_x
+    #     pos = strip.transform.offset_x
 
-    return pos
+    return strip.transform.offset_x #pos

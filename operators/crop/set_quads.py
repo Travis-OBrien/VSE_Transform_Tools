@@ -15,7 +15,7 @@ def set_quads(self, context):
     else:
         angle = 0
 
-    rect_size = 7.5
+    rect_size = 5.5
 
     for corner in self.corners:
         origin = corner

@@ -11,14 +11,14 @@ def draw_px_point(self, context):
 
     #color = (active_color[0], active_color[1], active_color[2], 1.0)
 
-    color = (1.0, 0.5, 0, 1.0)
+    color = (0, 0, 0, 1.0)
 
     v1 = [self.center_area.x, self.center_area.y]
     v2 = [self.mouse_pos.x, self.mouse_pos.y]
 
     if self.mouse_pos != Vector([-1, -1]):
-        draw_stippled_line(v1, v2, 2, 10, color)
+        draw_stippled_line(v1, v2, 0.5, 4, color)
         if hasattr(self, 'rot_prev'):
-            draw_arrows(v1, v2, 2, 20, color, angle_offset=90)
+            draw_arrows(v1, v2, 1.5, 12, color, angle_offset=90)
         else:
-            draw_arrows(v1, v2, 2, 20, color)
+            draw_arrows(v1, v2, 1.5, 12, color)

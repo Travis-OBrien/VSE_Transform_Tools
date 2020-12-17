@@ -44,7 +44,7 @@ class PREV_OT_duplicate(bpy.types.Operator):
                     context.selected_sequences)
 
                 bpy.ops.sequencer.duplicate_move(
-                        SEQUENCER_OT_duplicate={"mode": "TRANSLATION"},
+                        SEQUENCER_OT_duplicate={},
                         TRANSFORM_OT_seq_slide={
                             "value": (0, vertical_translation)})
 

@@ -12,7 +12,7 @@ def set_pos_x(strip, pos):
     """
     res_x = bpy.context.scene.render.resolution_x
 
-    if strip.translation_unit == 'PERCENT':
-        pos = (pos * 100) / res_x
+    # if strip.translation_unit == 'PERCENT':
+    #     pos = (pos * 100) / res_x
 
     return pos

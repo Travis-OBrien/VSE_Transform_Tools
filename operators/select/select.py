@@ -15,14 +15,11 @@ from ..utils.geometry import get_strip_corners
 from ..utils.draw import draw_line
 
 def draw_select(self, context):
-    #theme = context.user_preferences.themes['Default']
-    #active_color = theme.view_3d.object_active
-    #select_color = theme.view_3d.object_selected
+    active_color = context.preferences.themes[0].sequence_editor.active_strip
+    select_color = context.preferences.themes[0].sequence_editor.selected_strip
+    outline_color = (0, 0, 0, 0.2)
 
-    active_color = (1.0, 0.5, 0, 1.0)
-    select_color = (1.0, 0.25, 0, 1.0)
-
-    opacity = 0.9 - (self.seconds / self.fadeout_duration)
+    opacity = 1 - (self.seconds / self.fadeout_duration)
 
     active_strip = context.scene.sequence_editor.active_strip
 
@@ -41,10 +38,15 @@ def draw_select(self, context):
             corner_y = int(corner[1] * preview_zoom * fac) + offset_y
             vertices.append([corner_x, corner_y])
 
-        draw_line(vertices[0], vertices[1], 2, color)
-        draw_line(vertices[1], vertices[2], 2, color)
-        draw_line(vertices[2], vertices[3], 2, color)
-        draw_line(vertices[3], vertices[0], 2, color)
+        draw_line(vertices[0], vertices[1], 2, outline_color)
+        draw_line(vertices[1], vertices[2], 2, outline_color)
+        draw_line(vertices[2], vertices[3], 2, outline_color)
+        draw_line(vertices[3], vertices[0], 2, outline_color)
+
+        draw_line(vertices[0], vertices[1], 1, color)
+        draw_line(vertices[1], vertices[2], 1, color)
+        draw_line(vertices[2], vertices[3], 1, color)
+        draw_line(vertices[3], vertices[0], 1, color)
 
 
 class PREV_OT_select(bpy.types.Operator):
@@ -57,7 +59,7 @@ class PREV_OT_select(bpy.types.Operator):
 
     timer = None
     seconds = 0
-    fadeout_duration = 0.1
+    fadeout_duration = 100
     handle_select = None
 
     @classmethod

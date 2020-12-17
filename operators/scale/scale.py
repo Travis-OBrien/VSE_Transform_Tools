@@ -97,11 +97,11 @@ class PREV_OT_scale(bpy.types.Operator):
 
             func_constrain_axis_mmb(
                 self, context, event.type, event.value,
-                self.sign_rot * context.scene.sequence_editor.active_strip.rotation_start)
+                self.sign_rot * context.scene.sequence_editor.active_strip.transform.rotation)
 
             func_constrain_axis(
                 self, context, event.type, event.value,
-                self.sign_rot * context.scene.sequence_editor.active_strip.rotation_start)
+                self.sign_rot * context.scene.sequence_editor.active_strip.transform.rotation)
 
             process_input(self, event.type, event.value)
             if self.key_val != '':
@@ -254,8 +254,8 @@ class PREV_OT_scale(bpy.types.Operator):
                 context.area.header_text_set("Scale X:%.4f Y: %.4f" % (info_x, info_y))
 
             for strip, init_s, init_t in zip(self.tab, self.tab_init_s, self.tab_init_t):
-                strip.scale_start_x =  init_s[0] * round(diff_x, precision)
-                strip.scale_start_y =  init_s[1] * round(diff_y, precision)
+                strip.transform.scale_x =  init_s[0] * round(diff_x, precision)
+                strip.transform.scale_y =  init_s[1] * round(diff_y, precision)
 
                 flip_x = 1
                 if strip.use_flip_x:
@@ -266,12 +266,12 @@ class PREV_OT_scale(bpy.types.Operator):
                     flip_y = -1
 
                 if context.scene.seq_pivot_type in ['0', '3']:
-                    strip.translate_start_x = set_pos_x(strip, (init_t[0] - flip_x * self.center_real.x) * round(diff_x, precision) + flip_x * self.center_real.x)
-                    strip.translate_start_y = set_pos_y(strip, (init_t[1] - flip_y * self.center_real.y) * round(diff_y, precision) + flip_y * self.center_real.y)
+                    strip.transform.offset_x = set_pos_x(strip, (init_t[0] - flip_x * self.center_real.x) * round(diff_x, precision) + flip_x * self.center_real.x)
+                    strip.transform.offset_y = set_pos_y(strip, (init_t[1] - flip_y * self.center_real.y) * round(diff_y, precision) + flip_y * self.center_real.y)
 
                 if context.scene.seq_pivot_type == '2':
-                    strip.translate_start_x = set_pos_x(strip, (init_t[0] - self.center_c2d.x) * round(diff_x, precision) + self.center_c2d.x)
-                    strip.translate_start_y = set_pos_y(strip, (init_t[1] - self.center_c2d.y) * round(diff_y, precision) + self.center_c2d.y)
+                    strip.transform.offset_x = set_pos_x(strip, (init_t[0] - self.center_c2d.x) * round(diff_x, precision) + self.center_c2d.x)
+                    strip.transform.offset_y = set_pos_y(strip, (init_t[1] - self.center_c2d.y) * round(diff_y, precision) + self.center_c2d.y)
 
             if (event.type == 'LEFTMOUSE' or
                event.type == 'RET' or
@@ -288,26 +288,26 @@ class PREV_OT_scale(bpy.types.Operator):
                     pivot_type = context.scene.seq_pivot_type
                     if (pivot_type == '0' and len(self.tab) > 1) or pivot_type == '2':
                         for strip in self.tab:
-                            strip.keyframe_insert(data_path='translate_start_x')
-                            strip.keyframe_insert(data_path='translate_start_y')
-                            strip.keyframe_insert(data_path='scale_start_x')
-                            strip.keyframe_insert(data_path='scale_start_y')
+                            strip.transform.keyframe_insert(data_path='offset_x')
+                            strip.transform.keyframe_insert(data_path='offset_y')
+                            strip.transform.keyframe_insert(data_path='scale_x')
+                            strip.transform.keyframe_insert(data_path='scale_y')
                     elif pivot_type == '1' or pivot_type == '3' or (pivot_type == '0' and len(self.tab) == 1):
                         for strip in self.tab:
-                            strip.keyframe_insert(data_path='scale_start_x')
-                            strip.keyframe_insert(data_path='scale_start_y')
+                            strip.transform.keyframe_insert(data_path='scale_x')
+                            strip.transform.keyframe_insert(data_path='scale_y')
 
                 if self.handle_axes:
                     bpy.types.SpaceSequenceEditor.draw_handler_remove(self.handle_axes, 'PREVIEW')
-                context.area.header_text_set('')
+                context.area.header_text_set(None)
                 return {'FINISHED'}
 
             if event.type == 'ESC' or event.type == 'RIGHTMOUSE':
                 for strip, init_s, init_t in zip(self.tab, self.tab_init_s, self.tab_init_t):
-                    strip.scale_start_x = init_s[0]
-                    strip.scale_start_y = init_s[1]
-                    strip.translate_start_x = set_pos_x(strip, init_t[0])
-                    strip.translate_start_y = set_pos_y(strip, init_t[1])
+                    strip.transform.scale_x = init_s[0]
+                    strip.transform.scale_y = init_s[1]
+                    strip.transform.offset_x = set_pos_x(strip, init_t[0])
+                    strip.transform.offset_y = set_pos_y(strip, init_t[1])
 
                 bpy.types.SpaceSequenceEditor.draw_handler_remove(self.handle_line, 'PREVIEW')
 
@@ -316,7 +316,7 @@ class PREV_OT_scale(bpy.types.Operator):
 
                 if self.handle_axes:
                     bpy.types.SpaceSequenceEditor.draw_handler_remove(self.handle_axes, 'PREVIEW')
-                context.area.header_text_set('')
+                context.area.header_text_set(None)
                 return {'FINISHED'}
 
         else:
@@ -332,16 +332,16 @@ class PREV_OT_scale(bpy.types.Operator):
 
         self.horizontal_interests = [0, res_x]
         self.vertical_interests = [0, res_y]
-
         if event.alt :
             selected = context.selected_sequences
             for strip in selected:
-                transform = get_highest_transform(strip)
-                if transform.type == 'TRANSFORM':
-                    reset_transform_scale(transform)
-                else:
-                    transform.use_translation = True
-                    transform.blend_type = 'ALPHA_OVER'
+                reset_transform_scale(strip)
+                # transform = get_highest_transform(strip)
+                # if transform.type == 'TRANSFORM':
+                #     reset_transform_scale(transform)
+                # else:
+                #     transform.use_translation = True
+                #     transform.blend_type = 'ALPHA_OVER'
 
             return {'FINISHED'}
 
@@ -361,7 +361,7 @@ class PREV_OT_scale(bpy.types.Operator):
 
             scaled_count = 0
 
-            self.tab = ensure_transforms()
+            self.tab = context.selected_sequences #ensure_transforms()
             visible_strips = get_visible_strips()
 
             for strip in visible_strips:
@@ -376,7 +376,7 @@ class PREV_OT_scale(bpy.types.Operator):
 
             for strip in self.tab:
                 strip.select = True
-                self.tab_init_s.append([strip.scale_start_x, strip.scale_start_y])
+                self.tab_init_s.append([strip.transform.scale_x, strip.transform.scale_y])
                 self.tab_init_t.append([get_pos_x(strip), get_pos_y(strip)])
 
                 flip_x = 1
@@ -449,33 +449,36 @@ class PREV_OT_scale(bpy.types.Operator):
 
 def reset_transform_scale(strip):
     """Reset a strip to it's factor"""
-    strip_in = strip.input_1
+    #strip_in = strip.input_1
     res_x = bpy.context.scene.render.resolution_x
     res_y = bpy.context.scene.render.resolution_y
+    strip.transform.scale_x = 1.0
+    strip.transform.scale_y = 1.0
+    strip.transform.keyframe_insert(data_path='scale_x')
+    strip.transform.keyframe_insert(data_path='scale_y')
+    # if hasattr(strip_in, 'elements'):
+    #     len_crop_x = strip_in.elements[0].orig_width
+    #     len_crop_y = strip_in.elements[0].orig_height
 
-    if hasattr(strip_in, 'elements'):
-        len_crop_x = strip_in.elements[0].orig_width
-        len_crop_y = strip_in.elements[0].orig_height
+    #     if strip_in.use_crop:
+    #         len_crop_x -= (strip_in.crop.min_x + strip_in.crop.max_x)
+    #         len_crop_y -= (strip_in.crop.min_y + strip_in.crop.max_y)
 
-        if strip_in.use_crop:
-            len_crop_x -= (strip_in.crop.min_x + strip_in.crop.max_x)
-            len_crop_y -= (strip_in.crop.min_y + strip_in.crop.max_y)
+    #     ratio_x = len_crop_x / res_x
+    #     ratio_y = len_crop_y / res_y
 
-        ratio_x = len_crop_x / res_x
-        ratio_y = len_crop_y / res_y
+    #     strip.scale_start_x = ratio_x
+    #     strip.transform.offset_y = ratio_y
 
-        strip.scale_start_x = ratio_x
-        strip.scale_start_y = ratio_y
+    # elif strip_in.type == "SCENE":
+    #     strip_scene = strip_in.scene
 
-    elif strip_in.type == "SCENE":
-        strip_scene = strip_in.scene
+    #     ratio_x = strip_scene.render.resolution_x / res_x
+    #     ratio_y = strip_scene.render.resolution_y / res_y
 
-        ratio_x = strip_scene.render.resolution_x / res_x
-        ratio_y = strip_scene.render.resolution_y / res_y
+    #     strip.scale_start_x = ratio_x
+    #     strip.transform.offset_y = ratio_y
 
-        strip.scale_start_x = ratio_x
-        strip.scale_start_y = ratio_y
-
-    else:
-        strip.scale_start_x = 1.0
-        strip.scale_start_y = 1.0
+    # else:
+    #     strip.scale_start_x = 1.0
+    #     strip.transform.offset_y = 1.0

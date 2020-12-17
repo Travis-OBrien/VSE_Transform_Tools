@@ -66,7 +66,7 @@ class PREV_OT_rotate(bpy.types.Operator):
             self.vec_act = Vector([event.mouse_region_x, event.mouse_region_y])
             self.vec_act -= self.center_area
 
-            rot = math.degrees(-self.vec_prev.angle_signed(self.vec_act))
+            rot = math.degrees(-self.vec_prev.angle_signed(self.vec_act)) / (self.slow_factor * 5.5)
 
             if event.shift:
                 rot /= self.slow_factor
@@ -116,14 +116,14 @@ class PREV_OT_rotate(bpy.types.Operator):
                 pivot_type = context.scene.seq_pivot_type
                 if (pivot_type == '0' and len(self.tab) > 1) or pivot_type == '2':
                     for strip in self.tab:
-                        strip.keyframe_insert(data_path='translate_start_x')
-                        strip.keyframe_insert(data_path='translate_start_y')
-                        strip.keyframe_insert(data_path='rotation_start')
+                        strip.transform.keyframe_insert(data_path='offset_x')
+                        strip.transform.keyframe_insert(data_path='offset_y')
+                        strip.transform.keyframe_insert(data_path='rotation')
                 elif pivot_type == '1' or pivot_type == '3' or (pivot_type == '0' and len(self.tab) == 1):
                     for strip in self.tab:
-                        strip.keyframe_insert(data_path='rotation_start')
+                        strip.transform.keyframe_insert(data_path='rotation')
 
-            context.area.header_text_set('')
+            context.area.header_text_set(None)
             return {'FINISHED'}
 
         if event.type == 'ESC' or event.type == 'RIGHTMOUSE':
@@ -132,13 +132,13 @@ class PREV_OT_rotate(bpy.types.Operator):
                 init_rot = self.tab_init[i]
                 init_t = self.tab_init_t[i]
 
-                strip.rotation_start = init_rot
-                strip.translate_start_x = set_pos_x(strip, init_t[0])
-                strip.translate_start_y = set_pos_y(strip, init_t[1])
+                strip.transform.rotation = init_rot
+                strip.transform.offset_x = set_pos_x(strip, init_t[0])
+                strip.transform.offset_y = set_pos_y(strip, init_t[1])
 
             bpy.types.SpaceSequenceEditor.draw_handler_remove(
                 self.handle_line, 'PREVIEW')
-            context.area.header_text_set('')
+            context.area.header_text_set(None)
             return {'FINISHED'}
 
         return {'RUNNING_MODAL'}
@@ -150,10 +150,11 @@ class PREV_OT_rotate(bpy.types.Operator):
         bpy.ops.vse_transform_tools.initialize_pivot()
 
         if event.alt:
-            selected = ensure_transforms()
+            selected = context.selected_sequences #ensure_transforms()
             for strip in selected:
                 strip.select = True
-                strip.rotation_start = 0.0
+                strip.transform.rotation = 0.0
+                strip.transform.keyframe_insert(data_path='rotation')
             return {'FINISHED'}
 
         else:
@@ -167,16 +168,16 @@ class PREV_OT_rotate(bpy.types.Operator):
             self.slow_additions = []
             rotated_count = 0
 
-
-            self.tab = ensure_transforms()
+            # self.tab = ensure_transforms()
             active_strip = scene.sequence_editor.active_strip
+            self.tab = context.selected_sequences
 
             for strip in self.tab:
                 strip.select = True
                 pos_x = get_pos_x(strip)
                 pos_y = get_pos_y(strip)
 
-                self.tab_init.append(strip.rotation_start)
+                self.tab_init.append(strip.transform.rotation)
                 self.tab_init_t.append([pos_x, pos_y])
 
                 flip_x = 1
@@ -239,7 +240,7 @@ class PREV_OT_rotate(bpy.types.Operator):
 
                 self.vec_prev = Vector(self.vec_init)
 
-                self.init_rot = active_strip.rotation_start
+                self.init_rot = active_strip.transform.rotation
 
             args = (self, context)
             self.handle_line = bpy.types.SpaceSequenceEditor.draw_handler_add(
