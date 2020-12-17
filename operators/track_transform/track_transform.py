@@ -197,9 +197,30 @@ class SEQUENCER_OT_track_transform(bpy.types.Operator):
                 final_offset += 1
 
         scene.frame_current = start_frame
-
+        
+        ### set sequence's start frame to track's start frame.
+        # get source sequence
+        # active strip is always a generated transform effect, whos input is a user's defined transform effect, who input 'should' always be a source sequence 
+        # # TODO:
+        #   (this WILL BREAK if not true! (ie. the next strip is yet another effect strip))
+        sequence_source = active.input_1
+        first_marker = pos_track.markers[0]
+        #track_frame_start = pos_track.markers[0].frame
+        #sequence_offset = sequence_strip.frame_start + sequence_strip.frame_offset_start
+        #sequence_source.frame_start = track_frame_start - sequence_strip.frame_offset_start + (sequence_strip.frame_start + sequence_strip.frame_offset_start)
+        sequence_source.frame_start = get_time_offset(first_marker, sequence_strip)
+        
+        
         return {'FINISHED'}
 
+def get_sequence_start_frame(sequence):
+    # returns a time offset relative to the sequence
+    return sequence.frame_start + sequence.frame_offset_start
+
+def get_time_offset(marker, sequence):
+    # returns a time offset from a motion track (un-edited raw movie clip time), to the VSE sequence strip (edited movie clip)
+    return marker.frame - sequence.frame_offset_start + get_sequence_start_frame(sequence)
+    
 
 def calculate_angle(p1, p2):
     """
